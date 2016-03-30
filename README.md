@@ -1,8 +1,9 @@
 # DeepBox: Learning Objectness with Convolutional Networks
 
-Created by [Weicheng Kuo](http://www.eecs.berkeley.edu/~wckuo/) at UC Berkeley
+Created by TilakNeha, UMBC
 
 ### Introduction
+This is a customized deep box repository for visual entity linking project. For original repository, please look at one created by [Weicheng Kuo](http://www.eecs.berkeley.edu/~wckuo/) at UC Berkeley
 
 Fast DeepBox is a bounding box proposal re-ranker using ConvNets. It produces state-of-the-art bounding box proposal within 0.5s using a light-weight 4-layer network. Experiments on both PASCAL and COCO showed that DeepBox performs significantly better than Edge boxes in terms of Area under Curve and that the gain carries over to detection mAP. This implementation is based on Ross's Fast-RCNN codebase, thereby written in Python and C++/Caffe.
 
