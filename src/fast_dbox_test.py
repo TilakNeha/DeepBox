@@ -23,6 +23,7 @@ import utils.blob
 import os
 import pdb
 import scipy.io as sio
+import pickle
 
 def _get_image_blob(im):
     im_pyra = []
@@ -237,16 +238,25 @@ def demo_net_quick(net, num_boxes_vis):
     import matplotlib.pyplot as plt 
     score_list = []
     batch_size = 3000 
-    num_images = 4
+    num_images = 100
     frame_num = 0 
     # timer
     _t = {'im_detect' : Timer(), 'misc' : Timer()}
 
-    filename = './data/demo/demo_boxes.mat'
-    demo_boxes = sio.loadmat(filename)['boxes']
-    for frame_num in range(4): 
-        im = cv2.imread('./data/demo/im{:d}.jpg'.format(frame_num))
-        boxes = demo_boxes[frame_num][0]
+    imagefilename = '/home/wi20699/DescriptionGeneration/Data/Flickr8k/Flickr_8k.trainImages_part_1.txt'
+    with open(imagefilename) as f1:
+         imagelist = f1.readlines()
+    #filename = './data/demo/demo_boxes.mat'
+    filename = './data/demo2/boxes.dat'
+    #demo_boxes = sio.loadmat(filename)['boxes']
+    with open(filename, 'rb') as handle:
+         demo_boxes = pickle.load(handle)
+    allbboxlist_test = [] 
+    for frame_num in range(100): 
+        im = cv2.imread('/home/wi20699/DescriptionGeneration/Data/Flickr8k/Flicker8k_Dataset/'+imagelist[frame_num].strip())
+        #boxes = demo_boxes[frame_num][0]
+        boxes = demo_boxes[frame_num]
+        print(len(boxes))
         print 'Process image {:d},{:d} boxes'.format(frame_num,boxes.shape[0])
         _t['im_detect'].tic()
         
@@ -273,24 +283,31 @@ def demo_net_quick(net, num_boxes_vis):
 
         #Visualize top scoring boxes 
         im = im[:, :, (2, 1, 0)] 
-        fig, ax = plt.subplots(figsize=(12, 8))
-        ax.imshow(im)
-       # pdb.set_trace()
+        #fig, ax = plt.subplots(figsize=(12, 8))
+        #ax.imshow(im)
+        #pdb.set_trace()
+        bboxlist = []
+       
         for i in xrange(num_boxes_vis):
-            bbox = fboxes[i,:]
-            score = scores[indices[i]]    
-            ax.add_patch(
-                plt.Rectangle((bbox[0], bbox[1]),
-                              bbox[2] - bbox[0],
-                              bbox[3] - bbox[1], fill=False,
-                              edgecolor='red', linewidth=3.5)
-                )
-            ax.text(bbox[0], bbox[1] - 2,
-                    'Objectness:{:.3f}'.format(score),
-                    bbox=dict(facecolor='blue', alpha=0.5),
-                    fontsize=14, color='white')
-
-        ax.set_title('Fast DeepBox proposals on demo frame #{:d}'.format(frame_num),fontsize=14)
-        plt.axis('off')
-        plt.tight_layout()
-        plt.show()
+            if len(fboxes) > i:
+                bbox = fboxes[i,:]
+                score = scores[indices[i]]
+                bboxlist.append([bbox[0],bbox[1],bbox[2],bbox[3]])    
+                #ax.add_patch(
+                #    plt.Rectangle((bbox[0], bbox[1]),
+                #                  bbox[2],
+                #                  bbox[3], fill=False,
+                #                  edgecolor='red', linewidth=3.5)
+                #    )
+                #ax.text(bbox[0], bbox[1] - 2,
+                #        'Objectness:{:.3f}'.format(score),
+                #        bbox=dict(facecolor='blue', alpha=0.5),
+                #        fontsize=14, color='white')
+        
+        #ax.set_title('Fast DeepBox proposals on demo frame #{:d}'.format(frame_num),fontsize=14)
+        #plt.axis('off')
+        #plt.tight_layout()
+        #plt.show()
+        allbboxlist_test.append(bboxlist)
+    with open('test_deep_box.dat', 'wb') as h:
+        pickle.dump(allbboxlist_test,h)
